@@ -8,7 +8,14 @@
       let
         system = "x86_64-linux";
         pkgs = nixpkgs.legacyPackages.${system};
-        csprojFile = "./${projectName}.csproj";
+        csprojPath = "${src}/${projectName}.csproj";
+        fsprojPath = "${src}/${projectName}.fsproj";
+        
+        projectFile = if builtins.pathExists csprojPath
+          then "./${projectName}.csproj"
+          else if builtins.pathExists fsprojPath
+          then "./${projectName}.fsproj"
+          else throw "Could not find a valid .csproj or .fsproj for ${projectName} in the source root.";
 
         nugetCache = pkgs.stdenv.mkDerivation {
           name = "${pkgs.lib.strings.toLower projectName}-nuget-cache";
@@ -23,7 +30,7 @@
 
           buildPhase = ''
             export HOME=$TMPDIR
-            dotnet restore ${csprojFile} \
+            dotnet restore ${projectFile} \
               --source https://api.nuget.org/v3/index.json \
               --packages $out
           '';
@@ -40,8 +47,8 @@
         buildPhase = ''
           export HOME=$TMPDIR
           export DOTNET_CLI_HOME=$TMPDIR
-          dotnet restore ${csprojFile} --source ${nugetCache}
-          dotnet publish ${csprojFile} \
+          dotnet restore ${projectFile} --source ${nugetCache}
+          dotnet publish ${projectFile} \
             -c Release \
             --source ${nugetCache} \
             --no-restore \
