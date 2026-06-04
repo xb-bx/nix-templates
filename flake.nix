@@ -4,10 +4,10 @@
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
   outputs = { self, nixpkgs }: {
-    lib.mkDotnetApp = { projectName, projectVersion, src, dotnetSdk, nugetHash }: 
+    lib.mkDotnetApp = { projectName, projectVersion, src, dotnetSdk, nugetHash, targetSystem ? "x86_64-linux" }:
       let
-        system = "x86_64-linux";
-        pkgs = nixpkgs.legacyPackages.${system};
+        buildSystem = "x86_64-linux";
+        pkgs = nixpkgs.legacyPackages.${buildSystem};
         csprojPath = "${src}/${projectName}.csproj";
         fsprojPath = "${src}/${projectName}.fsproj";
         
