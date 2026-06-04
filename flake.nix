@@ -21,7 +21,7 @@
           name = "${pkgs.lib.strings.toLower projectName}-nuget-cache";
           inherit src; 
           
-          nativeBuildInputs = [ dotnetSdk ];
+          nativeBuildInputs = [ dotnetSdk pkgs.nukeReferences ];
           outputHashAlgo = "sha256";
           outputHashMode = "recursive";
           
@@ -34,7 +34,9 @@
               --source https://api.nuget.org/v3/index.json \
               --packages $out
           '';
-          installPhase = "true";
+          installPhase = ''
+            find $out -type f -exec nuke-refs {} +
+          '';
         };
       in
       pkgs.stdenv.mkDerivation {
