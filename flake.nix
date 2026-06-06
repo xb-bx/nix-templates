@@ -30,6 +30,9 @@
 
           buildPhase = ''
             export HOME=$TMPDIR
+            # Ensure $out exists even when the project has no NuGet
+            # dependencies (a framework-only restore downloads nothing).
+            mkdir -p $out
             dotnet restore ${projectFile} \
               --source https://api.nuget.org/v3/index.json \
               --packages $out
